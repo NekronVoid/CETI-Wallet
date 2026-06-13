@@ -1,6 +1,6 @@
-CREATE DATABASE finceti;
+CREATE DATABASE ceti_wallet;
 
-USE finceti;
+USE ceti_wallet;
 
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,

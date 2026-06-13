@@ -1,12 +1,14 @@
+
+/* ==========================================================================
+   1. VARIABLES Y CONFIGURACIÓN GLOBAL
+   ========================================================================== */
 :root {
     --base: #1e1e2e;
     --mantle: #181825;
     --surface0: #313244;
     --surface1: #45475a;
-
     --text: #cdd6f4;
     --subtext: #bac2de;
-
     --blue: #89b4fa;
     --green: #a6e3a1;
     --yellow: #f9e2af;
@@ -24,39 +26,23 @@ body {
     background: var(--base);
     color: var(--text);
     font-family: "Segoe UI", sans-serif;
+    min-height: 100vh;
+    /* Eliminamos el display: flex global para que no rompa el dashboard */
 }
 
-.container {
-    width: 90%;
-    max-width: 1200px;
-    margin: auto;
+a, a:visited {
+    color: #89b4fa;
+    text-decoration: none;
 }
 
-.navbar {
-    background: var(--mantle);
-    padding: 1rem;
-}
-
-.navbar h1 {
-    color: var(--blue);
-}
-
+/* ==========================================================================
+   2. COMPONENTES REUTILIZABLES (Tarjetas, Tablas, Inputs)
+   ========================================================================== */
 .card {
     background: var(--surface0);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-input,
-select {
-    width: 100%;
-    padding: .8rem;
-    background: var(--surface1);
-    border: none;
-    color: var(--text);
-    border-radius: 8px;
-    margin-bottom: 1rem;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
 }
 
 button {
@@ -73,23 +59,40 @@ button:hover {
     opacity: .9;
 }
 
+input, select {
+    width: 100%;
+    padding: .8rem;
+    background: var(--surface1);
+    border: none;
+    color: var(--text);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
 .table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.table th,
-.table td {
+.table th, .table td {
     padding: 1rem;
     border-bottom: 1px solid var(--surface1);
 }
 
-.ingreso {
-    color: var(--green);
+.ingreso { color: var(--green); }
+.gasto { color: var(--red); }
+
+/* ==========================================================================
+   3. DASHBOARD ESTRUCTURA (LAYOUT & GRID)
+   ========================================================================== */
+.layout {
+    display: flex;
+    min-height: 100vh;
 }
 
-.gasto {
-    color: var(--red);
+.main-content {
+    flex: 1;
+    padding: 30px;
 }
 
 .dashboard-grid {
@@ -108,98 +111,109 @@ button:hover {
     margin-bottom: .5rem;
 }
 
-.auth-container {
-    width: 400px;
-    margin: 5rem auto;
-}
-.layout {
-    display: flex;
-    min-height: 100vh;
+.chart-container {
+    max-width: 450px;
+    margin: auto;
 }
 
+/* ==========================================================================
+   4. BARRA LATERAL (SIDEBAR) INTERACTIVA
+   ========================================================================== */
 .sidebar {
-    width: 250px;
-    background: var(--mantle);
-    padding: 2rem;
+    width: 260px;
+    background: #11111b;
+    border-right: 1px solid #313244;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Todo se alinea a la izquierda por defecto */
+    overflow: hidden;
+    transition: width .3s ease, padding .3s ease;
 }
 
-.sidebar h2 {
-    color: var(--blue);
-    margin-bottom: 2rem;
+/* El botón hamburguesa por defecto se va a la derecha */
+.menu-btn {
+    position: initial;
+    align-self: flex-end; 
+    width: 40px;
+    height: 40px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 10px;
+    background: #89b4fa;
+    color: #1e1e2e;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: align-self .3s ease, margin .3s ease;
+}
+
+.logo {
+    color: #89b4fa;
+    margin-bottom: 20px;
+    white-space: nowrap;
+}
+
+.sidebar-user {
+    color: #bac2de;
+    margin-bottom: 30px;
+    white-space: nowrap;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
 }
 
 .sidebar a {
-    display: block;
+    color: #cdd6f4;
     text-decoration: none;
-    color: var(--text);
-    margin-bottom: 1rem;
-    padding: .8rem;
-    border-radius: 8px;
+    padding: 12px;
+    border-radius: 10px;
+    transition: .2s;
+    white-space: nowrap;
+    display: block;
 }
 
 .sidebar a:hover {
-    background: var(--surface0);
+    background: #313244;
 }
 
-.main-content {
-    flex: 1;
-    padding: 2rem;
+/* --- ESTADOS CUANDO SE COLAPSA CON .collapsed --- */
+.sidebar.collapsed {
+    width: 85px;
+    padding: 25px 10px;
+    align-items: center; /* Cambia el eje para centrar todo el contenido remanente */
 }
 
-.chart-card {
-    background: var(--surface0);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-top: 1rem;
+.sidebar.collapsed .menu-btn {
+    align-self: center; /* El botón viaja suavemente al centro */
 }
 
-.layout{
-    display:flex;
-    min-height:100vh;
+.sidebar.collapsed .logo,
+.sidebar.collapsed .sidebar-user,
+.sidebar.collapsed nav {
+    display: none; /* Esconde los textos para que no se desborden feo */
 }
 
-.sidebar{
-    width:250px;
-    background:#181825;
-    padding:30px;
-    display:flex;
-    flex-direction:column;
-    gap:15px;
+/* ==========================================================================
+   5. PANTALLA DE BIENVENIDA / LOGIN (AUTH)
+   ========================================================================== */
+.auth-container {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: var(--base); /* Mantiene el fondo oscuro impecable */
 }
 
-.sidebar h2{
-    color:#cdd6f4;
-}
-
-.sidebar-user{
-    color:#a6adc8;
-    margin-bottom:20px;
-}
-
-.sidebar a{
-    text-decoration:none;
-    color:#cdd6f4;
-    padding:12px;
-    border-radius:10px;
-    transition:.2s;
-}
-
-.sidebar a:hover{
-    background:#313244;
-}
-
-.main-content{
-    flex:1;
-    padding:30px;
-}
-
-.chart-container{
-    max-width:450px;
-    margin:auto;
-}
-
-a,
-a:visited {
-    color: #89b4fa;
-    text-decoration: none;
+.auth-container .card {
+    width: 100%;
+    max-width: 420px;
 }

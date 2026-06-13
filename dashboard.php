@@ -83,31 +83,7 @@ while ($dato = $grafica->fetch()) {
 
 <div class="layout">
 
-    <aside class="sidebar">
-
-        <h2>CETI Wallet</h2>
-
-        <p class="sidebar-user">
-            <?= htmlspecialchars($_SESSION["nombre"]) ?>
-        </p>
-
-        <a href="dashboard.php">
-            Dashboard
-        </a>
-
-        <a href="create_movement.php">
-            Nuevo Movimiento
-        </a>
-
-        <a href="#">
-            Reportes
-        </a>
-
-        <a href="auth/logout.php">
-            Cerrar Sesión
-        </a>
-
-    </aside>
+    <?php include "includes/sidebar.php"; ?>
 
     <main class="main-content">
 
@@ -306,6 +282,7 @@ new Chart(ctx, {
 
 </script>
 
+    <script src="assets/js/app.js"></script>
 </body>
 </html>
 
