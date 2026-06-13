@@ -5,44 +5,96 @@ require_once "../config/database.php";
 
 $error = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $nombre = trim($_POST["nombre"]);
     $correo = trim($_POST["correo"]);
     $password = $_POST["password"];
 
-    if (!empty($nombre) && !empty($correo) && !empty($password)) {
+    if (
+        empty($nombre) ||
+        empty($correo) ||
+        empty($password)
+    ) {
 
-        $verificar = $pdo->prepare(
-            "SELECT id FROM usuarios WHERE correo = ?"
+        $error = "Todos los campos son obligatorios.";
+
+    } elseif (!filter_var(
+        $correo,
+        FILTER_VALIDATE_EMAIL
+    )) {
+
+        $error = "Ingrese un correo electrónico válido.";
+
+    } else {
+
+        $dominio = substr(
+            strrchr($correo, "@"),
+            1
         );
 
-        $verificar->execute([$correo]);
+        if (!checkdnsrr($dominio, "MX")) {
 
-        if ($verificar->rowCount() > 0) {
-
-            $error = "El correo ya está registrado";
+            $error =
+            "El dominio del correo no existe o no acepta correos.";
 
         } else {
 
-            $hash = password_hash(
-                $password,
-                PASSWORD_DEFAULT
-            );
+            $patronPassword =
+            '/^(?=.*[A-Z])(?=.*[0-9])(?=.*[\W_]).{8,}$/';
 
-            $sql = $pdo->prepare(
-                "INSERT INTO usuarios(nombre, correo, password)
-                VALUES(?,?,?)"
-            );
+            if (!preg_match(
+                $patronPassword,
+                $password
+            )) {
 
-            $sql->execute([
-                $nombre,
-                $correo,
-                $hash
-            ]);
+                $error =
+                "La contraseña debe tener mínimo 8 caracteres, una mayúscula, un número y un símbolo.";
 
-            header("Location: login.php");
-            exit;
+            } else {
+
+                $verificar = $pdo->prepare(
+                    "SELECT id
+                    FROM usuarios
+                    WHERE correo = ?"
+                );
+
+                $verificar->execute([
+                    $correo
+                ]);
+
+                if ($verificar->rowCount() > 0) {
+
+                    $error =
+                    "El correo ya está registrado.";
+
+                } else {
+
+                    $hash = password_hash(
+                        $password,
+                        PASSWORD_DEFAULT
+                    );
+
+                    $sql = $pdo->prepare(
+                        "INSERT INTO usuarios
+                        (
+                            nombre,
+                            correo,
+                            password
+                        )
+                        VALUES (?, ?, ?)"
+                    );
+
+                    $sql->execute([
+                        $nombre,
+                        $correo,
+                        $hash
+                    ]);
+
+                    header("Location: login.php");
+                    exit;
+                }
+            }
         }
     }
 }
@@ -65,9 +117,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <br>
 
-        <?php if($error): ?>
-            <p class="gasto"><?= $error ?></p>
+        <?php if ($error): ?>
+
+            <p class="gasto">
+                <?= htmlspecialchars($error) ?>
+            </p>
+
             <br>
+
         <?php endif; ?>
 
         <form method="POST">
@@ -92,6 +149,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 placeholder="Contraseña"
                 required
             >
+
+            <small>
+                La contraseña debe contener:
+                <br>
+                • Mínimo 8 caracteres
+                <br>
+                • Una mayúscula
+                <br>
+                • Un número
+                <br>
+                • Un símbolo
+            </small>
+
+            <br><br>
 
             <button type="submit">
                 Registrarse
